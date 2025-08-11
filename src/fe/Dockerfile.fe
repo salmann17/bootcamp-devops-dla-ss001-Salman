@@ -1,0 +1,12 @@
+FROM python:3.12-alpine AS build
+WORKDIR /wheels
+COPY src/fe/requirements.txt .
+RUN pip wheel --no-cache-dir -r requirements.txt
+
+FROM python:3.12-alpine
+WORKDIR /app
+COPY --from=build /wheels /wheels
+RUN pip install --no-cache-dir --no-index --find-links=/wheels -r /wheels/requirements.txt
+COPY src/fe/ .
+EXPOSE 3000
+CMD ["python","server.py"]
